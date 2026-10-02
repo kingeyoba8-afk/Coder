@@ -1,1491 +1,880 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lalibela Shop | Discover Ethiopian Style</title>
-    
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts: Inter and Playfair Display -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ethiopian Adventure Runner - 10 Cultural Levels</title>
+  <style>
+    :root {
+      --ethiopia-green: #009b48;
+      --ethiopia-yellow: #ffde00;
+      --ethiopia-red: #d92121;
+      --bg-dark: #121214;
+      --panel-bg: #1e1e24;
+    }
 
-    <!-- Tailwind Configuration -->
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#1a1a1a',
-                        secondary: '#D97706', /* Amber-600 */
-                        accent: '#F59E0B',
-                        dark: '#111827',
-                        light: '#F3F4F6'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['Playfair Display', 'serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
 
-    <!-- Custom CSS for components and animations not easily handled by utility classes alone -->
-    <style>
-        /* Base Styles & Scrollbar */
-        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
+    body {
+      background-color: var(--bg-dark);
+      color: #f0f0f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
 
-        h1, h2, h3, h4, .serif-font { font-family: 'Playfair Display', serif; }
+    #app-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      max-width: 900px;
+      width: 100%;
+      padding: 16px;
+    }
 
-        /* Hide sections initially for SPA routing */
-        .view-section { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
-        .view-section.active { display: block; opacity: 1; animation: fadeIn 0.4s ease-out forwards; }
+    header {
+      text-align: center;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--panel-bg);
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      border-bottom: 4px solid var(--ethiopia-yellow);
+    }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    .title-group h1 {
+      font-size: 1.4rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-        /* Toast Notifications */
-        #toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .toast {
-            background-color: #1a1a1a;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transform: translateX(120%);
-            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        .toast.show { transform: translateX(0); }
+    .flag-badge {
+      display: inline-flex;
+      height: 16px;
+      width: 30px;
+      border-radius: 2px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .flag-badge span { flex: 1; }
+    .bg-green { background: var(--ethiopia-green); }
+    .bg-yellow { background: var(--ethiopia-yellow); }
+    .bg-red { background: var(--ethiopia-red); }
 
-        /* Loader */
-        .loader {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #D97706;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    #canvas-holder {
+      position: relative;
+      width: 100%;
+      max-width: 850px;
+      aspect-ratio: 8 / 3;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      border: 3px solid #333;
+    }
 
-        /* Image hover effects */
-        .img-zoom { overflow: hidden; }
-        .img-zoom img { transition: transform 0.5s ease; }
-        .img-zoom:hover img { transform: scale(1.08); }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
 
-        /* Form styling focus */
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #D97706;
-            box-shadow: 0 0 0 1px #D97706;
-        }
+    .controls-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      background: var(--panel-bg);
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      color: #aaa;
+    }
 
-        /* Mobile Menu */
-        #mobile-menu {
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
-        }
-        #mobile-menu.open {
-            transform: translateX(0);
-        }
-        
-        /* Banner Gradient */
-        .hero-gradient { background: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.3)); }
-    </style>
+    .key-badge {
+      background: #333;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      border: 1px solid #555;
+    }
+
+    /* On-screen mobile touch controls */
+    .touch-controls {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .touch-btn {
+      flex: 1;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background: #2a2a35;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #15151e;
+      transition: all 0.1s ease;
+    }
+
+    .touch-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #15151e;
+      background: #3a3a48;
+    }
+
+    .dev-tools {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    select {
+      background: #2a2a35;
+      color: #fff;
+      border: 1px solid #444;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
 </head>
-<body class="bg-white text-gray-800 antialiased">
+<body>
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container"></div>
-
-    <!-- ==========================================
-         SECTION 1: HEADER & NAVIGATION
-         ========================================== -->
-    <header class="bg-white sticky top-0 z-50 border-b border-gray-200 shadow-sm transition-all duration-300" id="main-header">
-        <!-- Top Utility Bar -->
-        <div class="bg-dark text-white text-xs py-2 px-4 text-center">
-            <span class="inline-block animate-pulse">🎉 Free shipping on orders over $100! Shop the new Ethiopian collection now.</span>
-        </div>
-
-        <!-- Main Nav -->
-        <div class="container mx-auto px-4 md:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                
-                <!-- Mobile Menu Button -->
-                <button id="btn-mobile-menu" class="lg:hidden text-2xl text-gray-700 hover:text-secondary focus:outline-none">
-                    <i class="fas fa-bars"></i>
-                </button>
-
-                <!-- Logo -->
-                <div class="flex-shrink-0 cursor-pointer" onclick="navigate('home')">
-                    <h1 class="text-2xl md:text-3xl font-bold tracking-tighter uppercase flex items-center gap-2">
-                        <i class="fa-solid fa-mountain text-secondary"></i>
-                        Lalibela <span class="text-secondary font-sans font-light">Shop</span>
-                    </h1>
-                </div>
-
-                <!-- Desktop Navigation -->
-                <nav class="hidden lg:flex space-x-8 font-medium text-sm tracking-wide">
-                    <a href="#home" onclick="navigate('home')" class="nav-link text-primary hover:text-secondary transition">HOME</a>
-                    <a href="#shop" onclick="navigate('shop', 'all')" class="nav-link text-gray-500 hover:text-secondary transition">SHOP ALL</a>
-                    <a href="#shop" onclick="navigate('shop', 'Women')" class="nav-link text-gray-500 hover:text-secondary transition">WOMEN</a>
-                    <a href="#shop" onclick="navigate('shop', 'Men')" class="nav-link text-gray-500 hover:text-secondary transition">MEN</a>
-                    <a href="#shop" onclick="navigate('shop', 'Local Products')" class="nav-link text-gray-500 hover:text-secondary transition">CULTURE</a>
-                    <a href="#shop" onclick="navigate('shop', 'sale')" class="nav-link text-red-600 hover:text-red-700 transition font-bold">SALE</a>
-                </nav>
-
-                <!-- Icons (Search, User, Wishlist, Cart) -->
-                <div class="flex items-center space-x-5 text-gray-700">
-                    <button class="hover:text-secondary transition hidden md:block" onclick="document.getElementById('search-modal').classList.remove('hidden')">
-                        <i class="fas fa-search text-lg"></i>
-                    </button>
-                    
-                    <button class="hover:text-secondary transition" onclick="navigate('auth')" title="Account">
-                        <i class="far fa-user text-lg"></i>
-                        <span id="user-greeting" class="text-xs font-semibold ml-1 hidden"></span>
-                    </button>
-
-                    <button class="hover:text-secondary transition relative" onclick="navigate('cart')">
-                        <i class="fas fa-shopping-cart text-lg"></i>
-                        <span id="cart-badge" class="absolute -top-2 -right-2 bg-secondary text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile Navigation Drawer -->
-        <div id="mobile-menu" class="fixed inset-y-0 left-0 w-64 bg-white shadow-2xl z-50 overflow-y-auto">
-            <div class="p-4 border-b flex justify-between items-center">
-                <h2 class="text-xl font-bold font-serif">Menu</h2>
-                <button id="btn-close-menu" class="text-gray-500 hover:text-red-500 text-xl"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="flex flex-col py-4">
-                <a href="#home" onclick="navigate('home'); closeMobileMenu()" class="px-6 py-3 border-b hover:bg-gray-50 text-gray-800">Home</a>
-                <a href="#shop" onclick="navigate('shop', 'all'); closeMobileMenu()" class="px-6 py-3 border-b hover:bg-gray-50 text-gray-800">Shop All</a>
-                <a href="#shop" onclick="navigate('shop', 'Women'); closeMobileMenu()" class="px-6 py-3 border-b hover:bg-gray-50 text-gray-800">Women</a>
-                <a href="#shop" onclick="navigate('shop', 'Men'); closeMobileMenu()" class="px-6 py-3 border-b hover:bg-gray-50 text-gray-800">Men</a>
-                <a href="#shop" onclick="navigate('shop', 'Local Products'); closeMobileMenu()" class="px-6 py-3 border-b hover:bg-gray-50 text-gray-800">Local & Culture</a>
-                <a href="#auth" onclick="navigate('auth'); closeMobileMenu()" class="px-6 py-3 border-b hover:bg-gray-50 text-gray-800">My Account</a>
-            </div>
-        </div>
-        <!-- Mobile Menu Overlay -->
-        <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="closeMobileMenu()"></div>
-    </header>
-
-    <!-- Search Modal -->
-    <div id="search-modal" class="fixed inset-0 bg-white z-[60] hidden flex flex-col">
-        <div class="container mx-auto px-4 py-6 flex items-center border-b">
-            <i class="fas fa-search text-gray-400 text-xl mr-3"></i>
-            <input type="text" id="global-search-input" placeholder="Search for Habesha clothes, shoes, bags..." class="w-full text-xl md:text-3xl font-light border-none focus:ring-0">
-            <button onclick="document.getElementById('search-modal').classList.add('hidden')" class="ml-4 text-3xl text-gray-500 hover:text-red-500">&times;</button>
-        </div>
-        <div class="container mx-auto px-4 py-8 flex-grow overflow-y-auto">
-            <h3 class="text-sm text-gray-500 uppercase tracking-wider mb-4">Popular Searches</h3>
-            <div class="flex gap-3 flex-wrap mb-8">
-                <button onclick="executeSearch('Habesha')" class="px-4 py-2 bg-gray-100 rounded-full text-sm hover:bg-gray-200">Habesha Dress</button>
-                <button onclick="executeSearch('Leather')" class="px-4 py-2 bg-gray-100 rounded-full text-sm hover:bg-gray-200">Leather Bag</button>
-                <button onclick="executeSearch('Coffee')" class="px-4 py-2 bg-gray-100 rounded-full text-sm hover:bg-gray-200">Coffee Set</button>
-            </div>
-            <h3 class="text-sm text-gray-500 uppercase tracking-wider mb-4">Search Results</h3>
-            <div id="search-results-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <!-- Search results injected here -->
-                <p class="text-gray-400 col-span-full">Start typing to see products...</p>
-            </div>
-        </div>
+<div id="app-container">
+  <header>
+    <div class="title-group">
+      <div class="flag-badge">
+        <span class="bg-green"></span>
+        <span class="bg-yellow"></span>
+        <span class="bg-red"></span>
+      </div>
+      <h1>Ethiopian Adventure Runner</h1>
     </div>
+    
+    <div class="dev-tools">
+      <label for="levelSelect">Jump to Level: </label>
+      <select id="levelSelect">
+        <option value="1">Lvl 1: Addis Ababa (0pt)</option>
+        <option value="2">Lvl 2: Rift Valley (1k)</option>
+        <option value="3">Lvl 3: Axum Empire (2k)</option>
+        <option value="4">Lvl 4: Lalibela (3k)</option>
+        <option value="5">Lvl 5: Gondar Castles (4k)</option>
+        <option value="6">Lvl 6: Simien Mounts (5k)</option>
+        <option value="7">Lvl 7: Harar Jugol (6k)</option>
+        <option value="8">Lvl 8: Rome 1960 - Bikila (7k)</option>
+        <option value="9">Lvl 9: Battle of Adwa (8k)</option>
+        <option value="10">⚡ Lvl 10: Danakil Lava Run (9k FAST)</option>
+      </select>
+    </div>
+  </header>
 
-    <!-- MAIN APP CONTAINER -->
-    <main id="app-root" class="min-h-screen">
+  <div id="canvas-holder">
+    <canvas id="gameCanvas" width="850" height="320"></canvas>
+  </div>
 
-        <!-- ==========================================
-             VIEW: HOME PAGE
-             ========================================== -->
-        <section id="view-home" class="view-section active">
-            
-            <!-- 2. HERO SECTION -->
-            <div class="relative w-full h-[60vh] md:h-[80vh] bg-gray-900 overflow-hidden">
-                <!-- Fallback to a high quality outdoor/fashion image from unsplash -->
-                <img src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="Ethiopian Scenery/Fashion" class="absolute inset-0 w-full h-full object-cover opacity-80" onerror="this.src='https://via.placeholder.com/1920x1080/1a1a1a/ffffff?text=Lalibela+Shop'">
-                <div class="absolute inset-0 hero-gradient flex items-center">
-                    <div class="container mx-auto px-6 md:px-12 text-white">
-                        <span class="block text-sm md:text-base tracking-[0.2em] mb-4 uppercase text-accent font-semibold">New Autumn Collection</span>
-                        <h1 class="text-5xl md:text-7xl font-bold mb-4 leading-tight">
-                            Discover<br>Ethiopian Style
-                        </h1>
-                        <p class="text-lg md:text-xl font-light mb-8 max-w-lg text-gray-200">
-                            Shop premium quality fashion, cultural artifacts, and authentic local products delivered worldwide.
-                        </p>
-                        <div class="flex gap-4">
-                            <button onclick="navigate('shop', 'all')" class="bg-secondary hover:bg-amber-700 text-white px-8 py-3 rounded-sm font-semibold transition tracking-wide text-sm">
-                                SHOP NOW
-                            </button>
-                            <button onclick="navigate('shop', 'Local Products')" class="bg-transparent border border-white hover:bg-white hover:text-primary text-white px-8 py-3 rounded-sm font-semibold transition tracking-wide text-sm">
-                                EXPLORE CULTURE
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div class="controls-panel">
+    <div><strong>Controls:</strong> <span class="key-badge">SPACE / UP / TAP</span> Jump | <span class="key-badge">DOWN / S</span> Duck</div>
+    <div>Goal: Reach <strong>10,000 Points</strong> to Win!</div>
+  </div>
 
-            <!-- 3. CATEGORY SECTION -->
-            <div class="container mx-auto px-4 py-16">
-                <div class="text-center mb-10">
-                    <h2 class="text-3xl font-bold serif-font mb-2">Shop by Category</h2>
-                    <div class="h-1 w-16 bg-secondary mx-auto"></div>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                    <!-- Cat 1 -->
-                    <div class="relative h-64 group cursor-pointer img-zoom rounded-lg overflow-hidden" onclick="navigate('shop', 'Clothes')">
-                        <img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover" alt="Clothes">
-                        <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition flex items-end p-6">
-                            <h3 class="text-white text-xl font-bold tracking-wide">Apparel</h3>
-                        </div>
-                    </div>
-                    <!-- Cat 2 -->
-                    <div class="relative h-64 group cursor-pointer img-zoom rounded-lg overflow-hidden" onclick="navigate('shop', 'Shoes')">
-                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover" alt="Footwear">
-                        <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition flex items-end p-6">
-                            <h3 class="text-white text-xl font-bold tracking-wide">Footwear</h3>
-                        </div>
-                    </div>
-                    <!-- Cat 3 -->
-                    <div class="relative h-64 group cursor-pointer img-zoom rounded-lg overflow-hidden" onclick="navigate('shop', 'Accessories')">
-                        <img src="https://images.unsplash.com/photo-1509319117193-57bab727e09d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover" alt="Accessories">
-                        <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition flex items-end p-6">
-                            <h3 class="text-white text-xl font-bold tracking-wide">Accessories</h3>
-                        </div>
-                    </div>
-                    <!-- Cat 4 -->
-                    <div class="relative h-64 group cursor-pointer img-zoom rounded-lg overflow-hidden" onclick="navigate('shop', 'Local Products')">
-                        <img src="https://images.unsplash.com/photo-1611077543944-7756f7093226?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover" alt="Cultural Items">
-                        <div class="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-20 transition flex items-end p-6">
-                            <h3 class="text-white text-xl font-bold tracking-wide">Cultural Items</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div class="touch-controls">
+    <button class="touch-btn" id="btnDuck">👇 DUCK</button>
+    <button class="touch-btn" id="btnJump" style="background: var(--ethiopia-green); color: #fff;">⬆️ JUMP</button>
+  </div>
+</div>
 
-            <!-- 4. TRENDING PRODUCTS SECTION -->
-            <div class="bg-gray-50 py-16">
-                <div class="container mx-auto px-4">
-                    <div class="flex justify-between items-end mb-10">
-                        <div>
-                            <h2 class="text-3xl font-bold serif-font mb-2">Trending Now</h2>
-                            <p class="text-gray-500">Discover our best-selling items this week.</p>
-                        </div>
-                        <button onclick="navigate('shop', 'all')" class="hidden md:block text-secondary font-semibold hover:underline">View All <i class="fas fa-arrow-right ml-1"></i></button>
-                    </div>
-                    
-                    <!-- Trending Products Grid (Injected via JS) -->
-                    <div id="trending-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                        <!-- Product Cards injected here -->
-                    </div>
-                    <div class="text-center mt-10 md:hidden">
-                        <button onclick="navigate('shop', 'all')" class="border-2 border-primary text-primary px-8 py-3 font-bold w-full hover:bg-primary hover:text-white transition">VIEW ALL PRODUCTS</button>
-                    </div>
-                </div>
-            </div>
+<script>
+  // Web Audio API Sound Synthesizer (No external asset files needed)
+  const AudioEngine = {
+    ctx: null,
+    init() {
+      if (!this.ctx) {
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    },
+    playJump() {
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(450, this.ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.15);
+    },
+    playCoin() {
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(987.77, this.ctx.currentTime); // B5
+      osc.frequency.setValueAtTime(1318.51, this.ctx.currentTime + 0.08); // E6
+      gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.25);
+    },
+    playLevelUp() {
+      if (!this.ctx) return;
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C E G C
+      notes.forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime + i * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.08 + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + i * 0.08);
+        osc.stop(this.ctx.currentTime + i * 0.08 + 0.2);
+      });
+    },
+    playHit() {
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(40, this.ctx.currentTime + 0.3);
+      gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.3);
+    }
+  };
 
-            <!-- 5. PROMOTION BANNER -->
-            <div class="container mx-auto px-4 py-16">
-                <div class="relative rounded-2xl overflow-hidden shadow-2xl h-80 md:h-96 flex items-center justify-center">
-                    <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80" alt="Promo Background" class="absolute inset-0 w-full h-full object-cover opacity-90">
-                    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-                    <div class="relative z-10 text-center px-4">
-                        <h2 class="text-white text-4xl md:text-6xl font-bold serif-font mb-4">Fall Adventures</h2>
-                        <p class="text-accent text-xl md:text-3xl font-semibold mb-8 bg-white/10 inline-block px-4 py-2 rounded backdrop-blur-sm">20% OFF ALL GEAR & CULTURE ITEMS!</p>
-                        <br>
-                        <button onclick="navigate('shop', 'sale')" class="bg-secondary hover:bg-white hover:text-primary text-white px-10 py-4 rounded font-bold text-lg transition duration-300 shadow-lg transform hover:-translate-y-1">
-                            SHOP SALE NOW
-                        </button>
-                    </div>
-                </div>
-            </div>
+  const LEVEL_CONFIGS = [
+    {
+      lvl: 1,
+      name: "Addis Ababa Streets",
+      hero: "City Kid",
+      heroColor: "#009b48",
+      bgGradient: ["#87CEEB", "#E0F6FF"],
+      groundColor: "#444444",
+      accentColor: "#f1c40f",
+      obstacleTypes: ["taxi", "cone"],
+      flyingTypes: ["pigeon"],
+      description: "Welcome to Addis Ababa! Watch out for Blue Lada Taxis."
+    },
+    {
+      lvl: 2,
+      name: "Great Rift Valley",
+      hero: "Lucy (Australopithecus)",
+      heroColor: "#d35400",
+      bgGradient: ["#f39c12", "#f9e79f"],
+      groundColor: "#a0522d",
+      accentColor: "#27ae60",
+      obstacleTypes: ["termite_mound", "acacia_thorn"],
+      flyingTypes: ["eagle"],
+      description: "Cradle of Humanity! Leap over ancient termite mounds."
+    },
+    {
+      lvl: 3,
+      name: "Axum Kingdom",
+      hero: "Axumite Royal",
+      heroColor: "#8e44ad",
+      bgGradient: ["#2c3e50", "#bdc3c7"],
+      groundColor: "#7f8c8d",
+      accentColor: "#f39c12",
+      obstacleTypes: ["stela_base", "urn"],
+      flyingTypes: ["falcon"],
+      description: "Land of Ancient Stelae & Great Obelisks."
+    },
+    {
+      lvl: 4,
+      name: "Lalibela Rock Churches",
+      hero: "Ethiopian Monk",
+      heroColor: "#f39c12",
+      bgGradient: ["#d35400", "#edbb99"],
+      groundColor: "#8b4513",
+      accentColor: "#e74c3c",
+      obstacleTypes: ["rock_cross", "trench"],
+      flyingTypes: ["raven"],
+      description: "Monolithic Rock-Hewn Churches of Lalibela."
+    },
+    {
+      lvl: 5,
+      name: "Gondar Royal Enclosure",
+      hero: "Emperor Fasilides",
+      heroColor: "#2980b9",
+      bgGradient: ["#34495e", "#7f8c8d"],
+      groundColor: "#555555",
+      accentColor: "#f1c40f",
+      obstacleTypes: ["castle_wall", "barrel"],
+      flyingTypes: ["bat"],
+      description: "The Camelot of Africa! Navigate the stone fortresses."
+    },
+    {
+      lvl: 6,
+      name: "Simien Mountains",
+      hero: "Walia Ibex Runner",
+      heroColor: "#27ae60",
+      bgGradient: ["#16a085", "#a3e4d7"],
+      groundColor: "#2e7d32",
+      accentColor: "#8e44ad",
+      obstacleTypes: ["sharp_boulder", "bush"],
+      flyingTypes: ["vulture"],
+      description: "High altitude peaks & Gelada baboon territory!"
+    },
+    {
+      lvl: 7,
+      name: "Harar Jugol (Walled City)",
+      hero: "Harari Trader",
+      heroColor: "#e67e22",
+      bgGradient: ["#e74c3c", "#fad7a0"],
+      groundColor: "#d35400",
+      accentColor: "#16a085",
+      obstacleTypes: ["spice_sack", "hyena"],
+      flyingTypes: ["hawk"],
+      description: "The historic Walled City! Hyenas prowl nearby."
+    },
+    {
+      lvl: 8,
+      name: "Rome 1960 Olympics",
+      hero: "Abebe Bikila (Barefoot)",
+      heroColor: "#2196F3",
+      bgGradient: ["#2980b9", "#85c1e9"],
+      groundColor: "#795548",
+      accentColor: "#ffeb3b",
+      obstacleTypes: ["hurdle", "classic_car"],
+      flyingTypes: ["arch_low"],
+      description: "Barefoot Marathon Legend! Abebe Bikila running for Gold."
+    },
+    {
+      lvl: 9,
+      name: "Battle of Adwa (1896)",
+      hero: "Emperor Menelik II",
+      heroColor: "#b71c1c",
+      bgGradient: ["#4a148c", "#ab47bc"],
+      groundColor: "#3e2723",
+      accentColor: "#ffb300",
+      obstacleTypes: ["cannon", "sandbag"],
+      flyingTypes: ["smoke_cloud"],
+      description: "Defending Sovereignty! Historic Victory of Adwa."
+    },
+    {
+      lvl: 10,
+      name: "Danakil Lava Sprint",
+      hero: "Warrior of Fire",
+      heroColor: "#ff3d00",
+      bgGradient: ["#210000", "#bf360c"],
+      groundColor: "#1b0000",
+      accentColor: "#ffea00",
+      obstacleTypes: ["lava_crack", "salt_pillar"],
+      flyingTypes: ["fireball"],
+      description: "⚡ ULTRA SPEED SPRINT! Cross the hottest place on Earth!"
+    }
+  ];
 
-            <!-- 6. MEN & WOMEN SECTION (SPLIT) -->
-            <div class="container mx-auto px-4 py-12">
-                <div class="grid md:grid-cols-2 gap-6 md:gap-8">
-                    <!-- Women -->
-                    <div class="relative h-[400px] rounded-xl overflow-hidden group cursor-pointer" onclick="navigate('shop', 'Women')">
-                        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="For Her" class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 md:p-12">
-                            <h2 class="text-4xl font-bold text-white mb-4 serif-font">For Her</h2>
-                            <button class="bg-white text-primary px-6 py-2 w-max rounded-full font-semibold hover:bg-secondary hover:text-white transition">EXPLORE</button>
-                        </div>
-                    </div>
-                    <!-- Men -->
-                    <div class="relative h-[400px] rounded-xl overflow-hidden group cursor-pointer" onclick="navigate('shop', 'Men')">
-                        <img src="https://images.unsplash.com/photo-1480455624313-e29b44bbfde1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="For Him" class="w-full h-full object-cover transition duration-700 group-hover:scale-105">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 md:p-12">
-                            <h2 class="text-4xl font-bold text-white mb-4 serif-font">For Him</h2>
-                            <button class="bg-white text-primary px-6 py-2 w-max rounded-full font-semibold hover:bg-secondary hover:text-white transition">EXPLORE</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  const canvas = document.getElementById("gameCanvas");
+  const ctx = canvas.getContext("2d");
 
-            <!-- 7. SOCIAL / GALLERY SECTION -->
-            <div class="py-16">
-                <div class="text-center mb-10">
-                    <h2 class="text-2xl md:text-3xl font-bold serif-font mb-2">Instagram Feed</h2>
-                    <p class="text-gray-500 font-medium hover:text-secondary cursor-pointer">@LALIBELA_SHOP</p>
-                </div>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-1">
-                    <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400" class="w-full h-48 md:h-64 object-cover hover:opacity-75 transition cursor-pointer" alt="Insta 1">
-                    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400" class="w-full h-48 md:h-64 object-cover hover:opacity-75 transition cursor-pointer" alt="Insta 2">
-                    <img src="https://images.unsplash.com/photo-1550614000-4b95d466f203?w=400" class="w-full h-48 md:h-64 object-cover hover:opacity-75 transition cursor-pointer hidden md:block" alt="Insta 3">
-                    <img src="https://images.unsplash.com/photo-1485230895905-ebd7f781df52?w=400" class="w-full h-48 md:h-64 object-cover hover:opacity-75 transition cursor-pointer hidden md:block" alt="Insta 4">
-                    <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=400" class="w-full h-48 md:h-64 object-cover hover:opacity-75 transition cursor-pointer hidden md:block" alt="Insta 5">
-                </div>
-            </div>
+  // Game Engine State
+  let game = {
+    score: 0,
+    level: 1,
+    gameSpeed: 6,
+    isGameOver: false,
+    isGameWon: false,
+    frameCount: 0,
+    lives: 3,
+    bunaBoost: 0, // Shield timer
+    particles: [],
+    obstacles: [],
+    collectibles: [],
+    notifications: []
+  };
 
-            <!-- 8. NEWSLETTER SECTION -->
-            <div class="bg-light border-t border-b py-16">
-                <div class="container mx-auto px-4 text-center max-w-2xl">
-                    <i class="far fa-envelope-open text-4xl text-secondary mb-4"></i>
-                    <h2 class="text-3xl font-bold serif-font mb-3">Stay Updated!</h2>
-                    <p class="text-gray-600 mb-8">Sign up for exclusive offers, discounts, promos, and updates on new Ethiopian cultural arrivals.</p>
-                    <form onsubmit="handleNewsletter(event)" class="flex flex-col sm:flex-row max-w-lg mx-auto gap-2">
-                        <input type="email" placeholder="Enter your email address..." class="flex-grow px-4 py-3 border border-gray-300 rounded focus:ring-2 focus:ring-secondary" required>
-                        <button type="submit" class="bg-primary text-white px-6 py-3 rounded font-bold hover:bg-secondary transition">SUBSCRIBE</button>
-                    </form>
-                </div>
-            </div>
-        </section>
+  // Player State
+  const player = {
+    x: 70,
+    y: 220,
+    width: 36,
+    height: 56,
+    baseHeight: 56,
+    duckHeight: 30,
+    velocityY: 0,
+    gravity: 0.7,
+    isJumping: false,
+    isDucking: false,
+    jumpStrength: -13.5,
+    groundY: 220
+  };
 
+  // Input Handling
+  const keys = {};
 
-        <!-- ==========================================
-             VIEW: SHOP PAGE (All Products + Filters)
-             ========================================== -->
-        <section id="view-shop" class="view-section py-10 bg-gray-50 min-h-screen">
-            <div class="container mx-auto px-4">
-                
-                <!-- Breadcrumbs & Header -->
-                <div class="mb-8 border-b pb-4">
-                    <nav class="text-sm text-gray-500 mb-2">
-                        <a href="#" onclick="navigate('home')" class="hover:text-primary">Home</a> <i class="fas fa-chevron-right text-[10px] mx-2"></i> <span id="shop-breadcrumb" class="text-primary font-semibold">Shop</span>
-                    </nav>
-                    <h1 id="shop-title" class="text-4xl font-bold serif-font">All Products</h1>
-                </div>
+  window.addEventListener("keydown", (e) => {
+    AudioEngine.init();
+    if (["Space", "ArrowUp", "KeyW"].includes(e.code)) {
+      e.preventDefault();
+      triggerJump();
+    }
+    if (["ArrowDown", "KeyS"].includes(e.code)) {
+      e.preventDefault();
+      triggerDuck(true);
+    }
+    if (e.code === "KeyR" && (game.isGameOver || game.isGameWon)) {
+      resetGame();
+    }
+  });
 
-                <div class="flex flex-col lg:flex-row gap-8">
-                    <!-- Filters Sidebar -->
-                    <aside class="w-full lg:w-1/4">
-                        <div class="bg-white p-6 rounded-lg shadow-sm border sticky top-24">
-                            <h3 class="font-bold text-lg mb-4 uppercase tracking-wide border-b pb-2">Filters</h3>
-                            
-                            <!-- Category Filter -->
-                            <div class="mb-6">
-                                <h4 class="font-semibold mb-3 text-gray-700">Category</h4>
-                                <ul class="space-y-2 text-sm text-gray-600" id="filter-categories">
-                                    <li><button onclick="filterShop('all')" class="hover:text-secondary w-full text-left filter-btn" data-cat="all">All Categories</button></li>
-                                    <li><button onclick="filterShop('Clothes')" class="hover:text-secondary w-full text-left filter-btn" data-cat="Clothes">Clothes & Apparel</button></li>
-                                    <li><button onclick="filterShop('Shoes')" class="hover:text-secondary w-full text-left filter-btn" data-cat="Shoes">Footwear</button></li>
-                                    <li><button onclick="filterShop('Accessories')" class="hover:text-secondary w-full text-left filter-btn" data-cat="Accessories">Accessories</button></li>
-                                    <li><button onclick="filterShop('Local Products')" class="hover:text-secondary w-full text-left filter-btn" data-cat="Local Products">Cultural & Local</button></li>
-                                </ul>
-                            </div>
+  window.addEventListener("keyup", (e) => {
+    if (["ArrowDown", "KeyS"].includes(e.code)) {
+      triggerDuck(false);
+    }
+  });
 
-                            <!-- Gender Filter -->
-                            <div class="mb-6">
-                                <h4 class="font-semibold mb-3 text-gray-700">Gender</h4>
-                                <div class="flex items-center mb-2">
-                                    <input type="radio" name="gender" id="g-all" checked onchange="filterShopByParam('gender','all')" class="text-secondary focus:ring-secondary mr-2"> <label for="g-all">All</label>
-                                </div>
-                                <div class="flex items-center mb-2">
-                                    <input type="radio" name="gender" id="g-men" onchange="filterShopByParam('gender','Men')" class="text-secondary focus:ring-secondary mr-2"> <label for="g-men">Men</label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input type="radio" name="gender" id="g-women" onchange="filterShopByParam('gender','Women')" class="text-secondary focus:ring-secondary mr-2"> <label for="g-women">Women</label>
-                                </div>
-                            </div>
+  // Touch Controls
+  document.getElementById("btnJump").addEventListener("touchstart", (e) => { e.preventDefault(); AudioEngine.init(); triggerJump(); });
+  document.getElementById("btnJump").addEventListener("mousedown", (e) => { AudioEngine.init(); triggerJump(); });
 
-                            <!-- Price Filter -->
-                            <div>
-                                <h4 class="font-semibold mb-3 text-gray-700">Sort By Price</h4>
-                                <select id="sort-price" onchange="sortShop(this.value)" class="w-full border rounded p-2 text-sm focus:border-secondary">
-                                    <option value="default">Default Sorting</option>
-                                    <option value="low">Price: Low to High</option>
-                                    <option value="high">Price: High to Low</option>
-                                </select>
-                            </div>
-                        </div>
-                    </aside>
+  const duckBtn = document.getElementById("btnDuck");
+  duckBtn.addEventListener("touchstart", (e) => { e.preventDefault(); triggerDuck(true); });
+  duckBtn.addEventListener("touchend", (e) => { e.preventDefault(); triggerDuck(false); });
+  duckBtn.addEventListener("mousedown", () => triggerDuck(true));
+  duckBtn.addEventListener("mouseup", () => triggerDuck(false));
 
-                    <!-- Product Grid -->
-                    <div class="w-full lg:w-3/4">
-                        <div class="flex justify-between items-center mb-4 text-sm text-gray-500">
-                            <span id="shop-result-count">Showing results</span>
-                        </div>
-                        <div id="shop-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                            <!-- Shop products injected here -->
-                        </div>
-                        <div id="shop-empty" class="hidden text-center py-20">
-                            <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
-                            <h3 class="text-xl font-bold text-gray-600">No products found</h3>
-                            <p class="text-gray-500">Try adjusting your filters.</p>
-                            <button onclick="filterShop('all')" class="mt-4 bg-primary text-white px-6 py-2 rounded">Clear Filters</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+  // Level selector quick jump for debugging/testing
+  document.getElementById("levelSelect").addEventListener("change", (e) => {
+    const selectedLvl = parseInt(e.target.value);
+    game.score = (selectedLvl - 1) * 1000;
+    if (selectedLvl === 10) game.score = 9000;
+    game.isGameOver = false;
+    game.isGameWon = false;
+    game.obstacles = [];
+    game.collectibles = [];
+    showNotification(`Jumped to Level ${selectedLvl}!`);
+    AudioEngine.playLevelUp();
+  });
 
+  function triggerJump() {
+    if (game.isGameOver || game.isGameWon) {
+      resetGame();
+      return;
+    }
+    if (!player.isJumping) {
+      player.velocityY = player.jumpStrength;
+      player.isJumping = true;
+      AudioEngine.playJump();
+      createParticles(player.x + player.width / 2, player.y + player.height, 8, "#aaa");
+    }
+  }
 
-        <!-- ==========================================
-             VIEW: PRODUCT DETAIL PAGE
-             ========================================== -->
-        <section id="view-product-detail" class="view-section py-10">
-            <div class="container mx-auto px-4 max-w-6xl">
-                <button onclick="navigate('shop', 'all')" class="text-gray-500 hover:text-primary mb-6 inline-flex items-center text-sm font-medium">
-                    <i class="fas fa-arrow-left mr-2"></i> Back to Shop
-                </button>
-                
-                <div class="bg-white rounded-2xl shadow-lg overflow-hidden border">
-                    <div class="flex flex-col md:flex-row">
-                        <!-- Product Image -->
-                        <div class="w-full md:w-1/2 p-8 bg-gray-50 flex items-center justify-center">
-                            <img id="detail-img" src="" alt="Product" class="max-w-full h-auto rounded-lg shadow-sm object-cover max-h-[500px]">
-                        </div>
-                        
-                        <!-- Product Info -->
-                        <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-                            <div class="mb-2 flex items-center justify-between">
-                                <span id="detail-category" class="text-xs font-bold text-secondary uppercase tracking-wider">Category</span>
-                                <div id="detail-rating" class="text-accent text-sm">
-                                    <!-- Stars injected here -->
-                                </div>
-                            </div>
-                            
-                            <h1 id="detail-title" class="text-3xl md:text-4xl font-bold serif-font mb-4 text-gray-900">Product Name</h1>
-                            
-                            <div class="mb-6 flex items-baseline gap-4">
-                                <span id="detail-price" class="text-3xl font-bold text-primary">$0.00</span>
-                                <span id="detail-old-price" class="text-lg text-gray-400 line-through hidden">$0.00</span>
-                            </div>
-                            
-                            <p id="detail-desc" class="text-gray-600 mb-8 leading-relaxed">
-                                Detailed product description goes here. This explains the cultural significance, material, and quality of the item.
-                            </p>
-                            
-                            <!-- Action Area -->
-                            <div class="border-t pt-8">
-                                <div class="flex items-center gap-4 mb-6">
-                                    <div class="flex items-center border rounded">
-                                        <button onclick="changeDetailQty(-1)" class="px-4 py-2 text-gray-600 hover:bg-gray-100">-</button>
-                                        <input type="number" id="detail-qty" value="1" min="1" max="10" class="w-12 text-center border-x py-2 focus:outline-none" readonly>
-                                        <button onclick="changeDetailQty(1)" class="px-4 py-2 text-gray-600 hover:bg-gray-100">+</button>
-                                    </div>
-                                    <button id="btn-add-detail" class="flex-grow bg-primary hover:bg-black text-white px-8 py-3 rounded font-bold transition flex justify-center items-center gap-2">
-                                        <i class="fas fa-shopping-cart"></i> ADD TO CART
-                                    </button>
-                                </div>
-                                <div class="flex gap-4 text-sm text-gray-500 font-medium">
-                                    <span class="flex items-center gap-1"><i class="fas fa-truck"></i> Free Delivery</span>
-                                    <span class="flex items-center gap-1"><i class="fas fa-undo"></i> 30 Days Return</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Related Products (Optional Enhancement) -->
-                <div class="mt-16">
-                    <h3 class="text-2xl font-bold serif-font mb-6 border-b pb-2">You May Also Like</h3>
-                    <div id="related-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        <!-- Related injected here -->
-                    </div>
-                </div>
-            </div>
-        </section>
+  function triggerDuck(ducking) {
+    player.isDucking = ducking;
+    if (ducking) {
+      player.height = player.duckHeight;
+      if (!player.isJumping) player.y = player.groundY + (player.baseHeight - player.duckHeight);
+    } else {
+      player.height = player.baseHeight;
+      if (!player.isJumping) player.y = player.groundY;
+    }
+  }
 
+  function createParticles(x, y, count, color) {
+    for (let i = 0; i < count; i++) {
+      game.particles.push({
+        x: x,
+        y: y,
+        vx: (Math.random() - 0.5) * 4,
+        vy: (Math.random() - 0.8) * 3,
+        size: Math.random() * 4 + 2,
+        color: color,
+        life: 20
+      });
+    }
+  }
 
-        <!-- ==========================================
-             VIEW: CART PAGE
-             ========================================== -->
-        <section id="view-cart" class="view-section py-10 bg-gray-50 min-h-screen">
-            <div class="container mx-auto px-4 max-w-6xl">
-                <h1 class="text-3xl font-bold serif-font mb-8">Shopping Cart</h1>
-                
-                <div class="flex flex-col lg:flex-row gap-8">
-                    <!-- Cart Items Table -->
-                    <div class="w-full lg:w-2/3">
-                        <div class="bg-white rounded-lg shadow-sm border overflow-hidden">
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr class="bg-gray-100 text-gray-600 text-sm uppercase tracking-wider">
-                                            <th class="p-4 w-1/2">Product</th>
-                                            <th class="p-4 text-center">Quantity</th>
-                                            <th class="p-4 text-right">Price</th>
-                                            <th class="p-4 text-center">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="cart-table-body" class="divide-y divide-gray-200">
-                                        <!-- Cart items injected via JS -->
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div id="cart-empty-msg" class="hidden py-16 text-center">
-                                <i class="fas fa-shopping-basket text-6xl text-gray-300 mb-4"></i>
-                                <h3 class="text-xl font-bold text-gray-500 mb-4">Your cart is currently empty.</h3>
-                                <button onclick="navigate('shop', 'all')" class="bg-secondary text-white px-6 py-2 rounded shadow hover:bg-amber-700">Return to Shop</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Order Summary -->
-                    <div class="w-full lg:w-1/3">
-                        <div class="bg-white p-6 rounded-lg shadow-sm border sticky top-24">
-                            <h3 class="text-lg font-bold uppercase tracking-wider border-b pb-4 mb-4">Order Summary</h3>
-                            
-                            <div class="flex justify-between mb-3 text-gray-600">
-                                <span>Subtotal</span>
-                                <span id="cart-subtotal">$0.00</span>
-                            </div>
-                            <div class="flex justify-between mb-3 text-gray-600">
-                                <span>Shipping</span>
-                                <span id="cart-shipping">$0.00</span>
-                            </div>
-                            <div class="flex justify-between mb-3 text-gray-600">
-                                <span>Tax (15%)</span>
-                                <span id="cart-tax">$0.00</span>
-                            </div>
-                            
-                            <div class="border-t pt-4 mt-4 mb-6">
-                                <div class="flex justify-between items-center text-xl font-bold text-primary">
-                                    <span>Total</span>
-                                    <span id="cart-total">$0.00</span>
-                                </div>
-                            </div>
-                            
-                            <button onclick="proceedToCheckout()" id="btn-checkout" class="w-full bg-primary hover:bg-black text-white py-3 rounded font-bold uppercase tracking-wide transition shadow-lg">
-                                Proceed to Checkout
-                            </button>
-                            
-                            <div class="mt-4 flex justify-center gap-2 text-2xl text-gray-400">
-                                <i class="fab fa-cc-visa"></i>
-                                <i class="fab fa-cc-mastercard"></i>
-                                <i class="fab fa-cc-paypal"></i>
-                                <i class="fab fa-cc-stripe"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+  function showNotification(msg) {
+    game.notifications.push({ text: msg, alpha: 1.0, y: 120 });
+  }
 
+  function updateLevelAndDifficulty() {
+    if (game.score >= 10000) {
+      game.isGameWon = true;
+      return;
+    }
 
-        <!-- ==========================================
-             VIEW: CHECKOUT PAGE
-             ========================================== -->
-        <section id="view-checkout" class="view-section py-10 bg-gray-50 min-h-screen">
-            <div class="container mx-auto px-4 max-w-5xl">
-                <h1 class="text-3xl font-bold serif-font mb-8">Checkout</h1>
-                
-                <form id="checkout-form" onsubmit="handleCheckout(event)" class="flex flex-col lg:flex-row gap-8">
-                    <!-- Billing Details -->
-                    <div class="w-full lg:w-2/3 bg-white p-6 md:p-8 rounded-lg shadow-sm border">
-                        <h3 class="text-xl font-bold mb-6 border-b pb-2">Billing Details</h3>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
-                                <input type="text" required class="w-full border rounded p-2 focus:ring-1 focus:ring-secondary">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
-                                <input type="text" required class="w-full border rounded p-2 focus:ring-1 focus:ring-secondary">
-                            </div>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
-                            <input type="email" required class="w-full border rounded p-2 focus:ring-1 focus:ring-secondary">
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
-                            <input type="tel" required class="w-full border rounded p-2 focus:ring-1 focus:ring-secondary">
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Street Address *</label>
-                            <input type="text" placeholder="House number and street name" required class="w-full border rounded p-2 mb-2 focus:ring-1 focus:ring-secondary">
-                        </div>
+    // Level formula: 1,000 points per level
+    const currentLvl = Math.min(10, Math.floor(game.score / 1000) + 1);
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Town / City *</label>
-                                <input type="text" required class="w-full border rounded p-2 focus:ring-1 focus:ring-secondary">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Country *</label>
-                                <select required class="w-full border rounded p-2 focus:ring-1 focus:ring-secondary">
-                                    <option value="ET">Ethiopia</option>
-                                    <option value="US">United States</option>
-                                    <option value="GB">United Kingdom</option>
-                                    <option value="CA">Canada</option>
-                                </select>
-                            </div>
-                        </div>
+    if (currentLvl !== game.level) {
+      game.level = currentLvl;
+      document.getElementById("levelSelect").value = game.level;
+      AudioEngine.playLevelUp();
+      showNotification(`LEVEL ${game.level}: ${LEVEL_CONFIGS[game.level - 1].name}!`);
+      createParticles(canvas.width / 2, canvas.height / 2, 40, "#ffde00");
+    }
 
-                        <h3 class="text-xl font-bold mb-6 border-b pb-2">Payment Method (Demo)</h3>
-                        <div class="space-y-3">
-                            <div class="border rounded p-3 flex items-center">
-                                <input type="radio" name="payment" id="pay-card" checked class="text-secondary focus:ring-secondary mr-3 w-4 h-4">
-                                <label for="pay-card" class="font-medium flex-grow cursor-pointer">Credit Card</label>
-                                <i class="far fa-credit-card text-gray-400 text-xl"></i>
-                            </div>
-                            <div class="border rounded p-3 flex items-center">
-                                <input type="radio" name="payment" id="pay-telebirr" class="text-secondary focus:ring-secondary mr-3 w-4 h-4">
-                                <label for="pay-telebirr" class="font-medium flex-grow cursor-pointer">Telebirr / Mobile Money</label>
-                                <i class="fas fa-mobile-alt text-gray-400 text-xl"></i>
-                            </div>
-                            <div class="border rounded p-3 flex items-center">
-                                <input type="radio" name="payment" id="pay-cod" class="text-secondary focus:ring-secondary mr-3 w-4 h-4">
-                                <label for="pay-cod" class="font-medium flex-grow cursor-pointer">Cash on Delivery</label>
-                                <i class="fas fa-truck text-gray-400 text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
+    // Speed calculation
+    if (game.level < 10) {
+      game.gameSpeed = 6 + (game.level * 0.9);
+    } else {
+      // LEVEL 10 FAST SPRINT CHALLENGE
+      game.gameSpeed = 15;
+    }
+  }
 
-                    <!-- Your Order Summary -->
-                    <div class="w-full lg:w-1/3">
-                        <div class="bg-primary text-white p-6 rounded-lg shadow-xl sticky top-24">
-                            <h3 class="text-lg font-bold uppercase tracking-wider border-b border-gray-700 pb-4 mb-4">Your Order</h3>
-                            <div id="checkout-items" class="mb-4 max-h-60 overflow-y-auto space-y-2 text-sm pr-2">
-                                <!-- Items injected here -->
-                            </div>
-                            <div class="border-t border-gray-700 pt-4 mt-4 space-y-2 text-sm">
-                                <div class="flex justify-between"><span>Subtotal:</span> <span id="check-subtotal">$0.00</span></div>
-                                <div class="flex justify-between"><span>Shipping:</span> <span id="check-shipping">$0.00</span></div>
-                                <div class="flex justify-between"><span>Tax:</span> <span id="check-tax">$0.00</span></div>
-                            </div>
-                            <div class="border-t border-gray-700 pt-4 mt-4 flex justify-between items-center text-xl font-bold">
-                                <span>Total:</span>
-                                <span id="check-total" class="text-secondary">$0.00</span>
-                            </div>
-                            <button type="submit" class="w-full bg-secondary hover:bg-amber-500 text-white py-3 rounded font-bold uppercase tracking-wide transition mt-6 shadow">
-                                Place Order
-                            </button>
-                            <p class="text-xs text-gray-400 mt-4 text-center">Your personal data will be used to process your order, support your experience throughout this website.</p>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </section>
+  function spawnEntities() {
+    const cfg = LEVEL_CONFIGS[game.level - 1];
 
-        <!-- ==========================================
-             VIEW: LOGIN / REGISTER (AUTH) PAGE
-             ========================================== -->
-        <section id="view-auth" class="view-section py-20 bg-gray-50 min-h-screen flex items-center justify-center">
-            <div class="container mx-auto px-4 max-w-md">
-                
-                <div class="bg-white rounded-xl shadow-xl overflow-hidden border">
-                    <!-- Tabs -->
-                    <div class="flex border-b">
-                        <button id="tab-login" onclick="toggleAuth('login')" class="w-1/2 py-4 font-bold text-center bg-gray-50 border-b-2 border-secondary text-primary">Login</button>
-                        <button id="tab-register" onclick="toggleAuth('register')" class="w-1/2 py-4 font-bold text-center bg-gray-100 border-b-2 border-transparent text-gray-500 hover:text-primary">Register</button>
-                    </div>
+    // Spawn Ground / Flying Obstacles
+    let spawnRate = Math.max(35, Math.floor(100 / (game.gameSpeed / 5)));
+    if (game.frameCount % spawnRate === 0 && Math.random() < 0.75) {
+      const isFlying = Math.random() < 0.3;
 
-                    <div class="p-8">
-                        <!-- Login Form -->
-                        <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
-                            <h2 class="text-2xl font-bold serif-font mb-6 text-center">Welcome Back</h2>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                                <input type="email" value="user@example.com" required class="w-full border rounded p-2 focus:ring-1 focus:ring-secondary">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                                <input type="password" value="password123" required class="w-full border rounded p-2 focus:ring-1 focus:ring-secondary">
-                            </div>
-                            <div class="flex items-center justify-between text-sm">
-                                <label class="flex items-center cursor-pointer">
-                                    <input type="checkbox" class="mr-2 text-secondary focus:ring-secondary"> Remember me
-                                </label>
-                                <a href="#" class="text-secondary hover:underline">Lost password?</a>
-                            </div>
-                            <button type="submit" class="w-full bg-primary hover:bg-black text-white py-3 rounded font-bold transition">SIGN IN</button>
-                        </form>
+      if (isFlying) {
+        game.obstacles.push({
+          x: canvas.width,
+          y: player.groundY - 35 - (Math.random() > 0.5 ? 40 : 0), // Requires ducking or careful jump
+          width: 28,
+          height: 22,
+          isFlying: true,
+          type: cfg.flyingTypes[0]
+        });
+      } else {
+        game.obstacles.push({
+          x: canvas.width,
+          y: player.groundY + (player.baseHeight - 38),
+          width: 26,
+          height: 38,
+          isFlying: false,
+          type: cfg.obstacleTypes[Math.floor(Math.random() * cfg.obstacleTypes.length)]
+        });
+      }
+    }
 
-                        <!-- Register Form (Hidden initially) -->
-                        <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
-                            <h2 class="text-2xl font-bold serif-font mb-6 text-center">Create Account</h2>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                                <input type="text" required class="w-full border rounded p-2 focus:ring-1 focus:ring-secondary">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                                <input type="email" required class="w-full border rounded p-2 focus:ring-1 focus:ring-secondary">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                                <input type="password" required minlength="6" class="w-full border rounded p-2 focus:ring-1 focus:ring-secondary">
-                            </div>
-                            <p class="text-xs text-gray-500">Your personal data will be used to support your experience throughout this website, to manage access to your account.</p>
-                            <button type="submit" class="w-full bg-secondary hover:bg-amber-600 text-white py-3 rounded font-bold transition">REGISTER</button>
-                        </form>
-                    </div>
-                </div>
-                
-                <!-- Logged In State (Hidden initially) -->
-                <div id="auth-logged-in" class="bg-white rounded-xl shadow-xl p-10 text-center border hidden">
-                    <div class="w-20 h-20 bg-gray-100 rounded-full mx-auto flex items-center justify-center mb-4">
-                        <i class="far fa-user text-4xl text-gray-400"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold serif-font mb-2">My Account</h2>
-                    <p class="text-gray-600 mb-6" id="account-email">user@example.com</p>
-                    <div class="space-y-3">
-                        <button onclick="navigate('shop', 'all')" class="w-full border border-primary text-primary hover:bg-primary hover:text-white py-2 rounded font-semibold transition">Go to Shop</button>
-                        <button onclick="handleLogout()" class="w-full text-red-500 hover:bg-red-50 py-2 rounded font-semibold transition">Log Out</button>
-                    </div>
-                </div>
+    // Spawn Collectibles (Buna ☕, Injera 🫓, Axum Coin 🪙)
+    if (game.frameCount % 180 === 0 && Math.random() < 0.6) {
+      const types = ["coin", "buna", "injera"];
+      const randType = types[Math.floor(Math.random() * types.length)];
+      game.collectibles.push({
+        x: canvas.width,
+        y: player.groundY - 20 - Math.random() * 60,
+        width: 22,
+        height: 22,
+        type: randType
+      });
+    }
+  }
 
-            </div>
-        </section>
+  function update() {
+    if (game.isGameOver || game.isGameWon) return;
 
-    </main>
+    game.frameCount++;
+    game.score += 2; // Continuous score progression
+    updateLevelAndDifficulty();
 
-    <!-- ==========================================
-         9. FOOTER SECTION
-         ========================================== -->
-    <footer class="bg-dark text-gray-300 pt-16 pb-8 text-sm">
-        <div class="container mx-auto px-4 md:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
-                
-                <!-- Brand Info -->
-                <div>
-                    <h2 class="text-white text-2xl font-bold tracking-tighter uppercase flex items-center gap-2 mb-6">
-                        <i class="fa-solid fa-mountain text-secondary"></i>
-                        Lalibela <span class="text-secondary font-light font-sans">Shop</span>
-                    </h2>
-                    <p class="text-gray-400 mb-6 leading-relaxed">
-                        Connecting you to authentic Ethiopian style and high-quality modern fashion. Experience the rich culture through our curated products.
-                    </p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-secondary hover:text-white transition"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-secondary hover:text-white transition"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-secondary hover:text-white transition"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-secondary hover:text-white transition"><i class="fab fa-tiktok"></i></a>
-                    </div>
-                </div>
+    if (game.bunaBoost > 0) game.bunaBoost--;
 
-                <!-- Customer Service -->
-                <div>
-                    <h3 class="text-white font-bold uppercase tracking-wider mb-6 text-sm">Customer Service</h3>
-                    <ul class="space-y-3">
-                        <li><a href="#" class="hover:text-secondary transition">Contact Us</a></li>
-                        <li><a href="#" class="hover:text-secondary transition">Shipping & Delivery</a></li>
-                        <li><a href="#" class="hover:text-secondary transition">Exchange & Return Policy</a></li>
-                        <li><a href="#" class="hover:text-secondary transition">Order Status</a></li>
-                        <li><a href="#" class="hover:text-secondary transition">FAQs</a></li>
-                    </ul>
-                </div>
+    // Player Physics
+    player.velocityY += player.gravity;
+    player.y += player.velocityY;
 
-                <!-- About Us -->
-                <div>
-                    <h3 class="text-white font-bold uppercase tracking-wider mb-6 text-sm">About Lalibela</h3>
-                    <ul class="space-y-3">
-                        <li><a href="#" class="hover:text-secondary transition">Our Story</a></li>
-                        <li><a href="#" class="hover:text-secondary transition">Careers</a></li>
-                        <li><a href="#" class="hover:text-secondary transition">Privacy Policy</a></li>
-                        <li><a href="#" class="hover:text-secondary transition">Terms & Conditions</a></li>
-                    </ul>
-                </div>
+    const currentGround = player.isDucking ? player.groundY + (player.baseHeight - player.duckHeight) : player.groundY;
 
-                <!-- Contact / Payment -->
-                <div>
-                    <h3 class="text-white font-bold uppercase tracking-wider mb-6 text-sm">Contact & Store</h3>
-                    <ul class="space-y-3 mb-6">
-                        <li class="flex items-start gap-3">
-                            <i class="fas fa-map-marker-alt mt-1 text-secondary"></i>
-                            <span>Bole Road, Addis Ababa<br>Ethiopia</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <i class="fas fa-phone-alt text-secondary"></i>
-                            <span>+251 911 234 567</span>
-                        </li>
-                        <li class="flex items-center gap-3">
-                            <i class="fas fa-envelope text-secondary"></i>
-                            <span>support@lalibelashop.com</span>
-                        </li>
-                    </ul>
-                    
-                    <!-- Payment Methods mimicking ref image -->
-                    <div class="flex gap-2">
-                        <div class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold">VISA</div>
-                        <div class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold">MC</div>
-                        <div class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold">PayPal</div>
-                        <div class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold">Telebirr</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-gray-500 text-xs">
-                <p>&copy; 2026 Lalibela Shop. All Rights Reserved. Designed for Ethiopia & the World.</p>
-                <div class="mt-4 md:mt-0 space-x-4">
-                    <span>Currency: USD / ETB</span>
-                    <span>Language: English</span>
-                </div>
-            </div>
-        </div>
-    </footer>
+    if (player.y >= currentGround) {
+      player.y = currentGround;
+      player.velocityY = 0;
+      player.isJumping = false;
+    }
 
+    // Spawn Entities
+    spawnEntities();
 
-    <!-- ==========================================
-         JAVASCRIPT LOGIC & STATE MANAGEMENT
-         ========================================== -->
-    <script>
-        // ----------------------------------------
-        // 1. MOCK DATA (Extensive Product List)
-        // ----------------------------------------
-        const products = [
-            // Local & Cultural
-            { id: 1, name: "Traditional Habesha Kemis", price: 120.00, rating: 4.8, category: "Local Products", gender: "Women", image: "https://images.unsplash.com/photo-1623086971953-e5e6e87f620b?w=600&q=80", desc: "Authentic handwoven Ethiopian traditional dress made from pure cotton (Shemma) with intricate 'tilet' patterns along the edges.", trending: true },
-            { id: 2, name: "Ethiopian Coffee Set (Jebena)", price: 45.00, rating: 4.9, category: "Local Products", gender: "all", image: "https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=600&q=80", desc: "Traditional clay Jebena coffee pot complete with small cups (cini). Perfect for hosting authentic Ethiopian coffee ceremonies.", trending: true },
-            { id: 3, name: "Handwoven Scarf (Netela)", price: 25.00, rating: 4.5, category: "Local Products", gender: "all", image: "https://images.unsplash.com/photo-1601050853526-7871b7dd7822?w=600&q=80", desc: "Lightweight, breathable handwoven cotton scarf perfect for layering. Traditional Ethiopian craftsmanship.", trending: false },
-            { id: 4, name: "Leather Messenger Bag", price: 85.00, rating: 4.7, category: "Accessories", gender: "Men", image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80", desc: "Premium genuine leather bag sourced and crafted in Ethiopia. Features brass hardware and adjustable straps.", trending: true },
-            
-            // Women's Apparel
-            { id: 5, name: "Floral Summer Dress", price: 45.00, rating: 4.2, category: "Clothes", gender: "Women", image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=600&q=80", desc: "Breezy and comfortable floral dress for casual outings. Made with breathable cotton blend.", trending: false },
-            { id: 6, name: "Classic Trench Coat", price: 110.00, rating: 4.6, category: "Clothes", gender: "Women", image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80", desc: "A timeless outerwear piece. Water-resistant and stylish for the autumn season.", trending: false },
-            { id: 7, name: "High-Waist Jeans", price: 55.00, rating: 4.3, category: "Clothes", gender: "Women", image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&q=80", desc: "Comfortable stretch denim with a flattering high-rise fit.", trending: true },
-            { id: 8, name: "Silk Blouse", price: 65.00, rating: 4.9, category: "Clothes", gender: "Women", image: "https://images.unsplash.com/photo-1604176354204-9268737828e4?w=600&q=80", desc: "Elegant 100% silk blouse suitable for office wear or evening events.", trending: false },
-            
-            // Men's Apparel
-            { id: 9, name: "Classic Cotton T-Shirt", price: 35.00, rating: 4.5, category: "Clothes", gender: "Men", image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80", desc: "Premium organic cotton tee. Soft, durable, and fits perfectly.", trending: true, reviews: 85 },
-            { id: 10, name: "Aurora Tech Jacket", price: 149.00, rating: 4.8, category: "Clothes", gender: "Men", image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&q=80", desc: "Outdoor tactical jacket designed for hiking and rough weather. Water-proof and insulated.", trending: true, sale: true },
-            { id: 11, name: "Slim Fit Chinos", price: 48.00, rating: 4.1, category: "Clothes", gender: "Men", image: "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=600&q=80", desc: "Versatile trousers suitable for both casual and smart-casual occasions.", trending: false },
-            { id: 12, name: "Wool Blend Sweater", price: 75.00, rating: 4.4, category: "Clothes", gender: "Men", image: "https://images.unsplash.com/photo-1614975059251-992f11792b9f?w=600&q=80", desc: "Warm and cozy sweater made from a comfortable wool blend.", trending: false },
+    // Update Obstacles & Collision Check
+    for (let i = game.obstacles.length - 1; i >= 0; i--) {
+      let obs = game.obstacles[i];
+      obs.x -= game.gameSpeed;
 
-            // Shoes
-            { id: 13, name: "White Minimalist Sneakers", price: 90.00, rating: 4.9, category: "Shoes", gender: "all", image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&q=80", desc: "Clean, classic, white leather sneakers. A staple for any wardrobe.", trending: true, reviews: 210 },
-            { id: 14, name: "HikeMaster Boots", price: 160.00, rating: 4.7, category: "Shoes", gender: "Men", image: "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?w=600&q=80", desc: "Durable leather hiking boots with excellent grip and ankle support.", trending: true, sale: true },
-            { id: 15, name: "Leather Ankle Boots", price: 120.00, rating: 4.6, category: "Shoes", gender: "Women", image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80", desc: "Chic leather ankle boots perfect for the autumn/winter season.", trending: false },
-            { id: 16, name: "Traditional Leather Sandals", price: 30.00, rating: 4.2, category: "Shoes", gender: "all", image: "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&q=80", desc: "Handmade local sandals (shuruba style). Very comfortable for summer.", trending: false },
-
-            // Accessories
-            { id: 17, name: "Elegant Leather Bag", price: 120.00, rating: 4.5, category: "Accessories", gender: "Women", image: "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=600&q=80", desc: "High-quality leather shoulder bag with gold hardware.", trending: true },
-            { id: 18, name: "Altai Backpack", price: 95.00, rating: 4.6, category: "Accessories", gender: "all", image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80", desc: "Spacious canvas backpack for daily commuting or outdoor trips.", trending: true, sale: true },
-            { id: 19, name: "Straw Hat", price: 25.00, rating: 4.3, category: "Accessories", gender: "Women", image: "https://images.unsplash.com/photo-1514327605112-b887c0e61c0a?w=600&q=80", desc: "Wide-brimmed straw hat to protect you from the sun.", trending: false },
-            { id: 20, name: "Nalgene Water Bottle", price: 25.00, rating: 4.8, category: "Accessories", gender: "all", image: "https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=600&q=80", desc: "BPA-free durable water bottle for hydration on the go.", trending: false, sale: true },
-            { id: 21, name: "Ethiopian Opal Ring", price: 250.00, rating: 5.0, category: "Accessories", gender: "Women", image: "https://images.unsplash.com/photo-1605100804763-247f67b454b6?w=600&q=80", desc: "Stunning silver ring featuring an authentic Ethiopian Welo Opal known for its fire.", trending: true },
-            { id: 22, name: "Classic Wrist Watch", price: 180.00, rating: 4.7, category: "Accessories", gender: "Men", image: "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=600&q=80", desc: "Minimalist analog watch with a genuine leather strap.", trending: false },
-            { id: 23, name: "Patterned Silk Tie", price: 35.00, rating: 4.0, category: "Accessories", gender: "Men", image: "https://images.unsplash.com/photo-1598032895397-b9472444bf93?w=600&q=80", desc: "Add a pop of color to your suit with this patterned tie.", trending: false },
-            { id: 24, name: "Aviator Sunglasses", price: 45.00, rating: 4.4, category: "Accessories", gender: "all", image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600&q=80", desc: "Classic aviator shades with UV protection.", trending: false }
-        ];
-
-        // ----------------------------------------
-        // 2. STATE MANAGEMENT
-        // ----------------------------------------
-        let state = {
-            cart: JSON.parse(localStorage.getItem('lalibela_cart')) || [],
-            currentUser: null,
-            currentView: 'home',
-            shopFilters: {
-                category: 'all',
-                gender: 'all',
-                search: '',
-                sort: 'default'
-            },
-            currentProductDetailId: null
-        };
-
-        // ----------------------------------------
-        // 3. CORE FUNCTIONS (Router & Setup)
-        // ----------------------------------------
-        
-        function initApp() {
-            // Load initial view
-            const hash = window.location.hash.replace('#', '');
-            if(hash) {
-                // simple hash parsing (e.g., #shop)
-                navigate(hash);
-            } else {
-                navigate('home');
-            }
-            
-            // Render initial data
-            renderTrendingProducts();
-            updateCartBadge();
-            
-            // Setup global search enter key
-            document.getElementById('global-search-input').addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    executeSearch(this.value);
-                }
-            });
+      // Collision box check
+      if (
+        player.x < obs.x + obs.width &&
+        player.x + player.width > obs.x &&
+        player.y < obs.y + obs.height &&
+        player.y + player.height > obs.y
+      ) {
+        if (game.bunaBoost > 0) {
+          // Shielded by Buna Coffee Boost!
+          createParticles(obs.x, obs.y, 15, "#ffde00");
+          game.obstacles.splice(i, 1);
+          AudioEngine.playCoin();
+          continue;
         }
 
-        function navigate(viewId, param = null) {
-            window.scrollTo(0, 0); // Scroll to top
+        // Damage handling
+        AudioEngine.playHit();
+        createParticles(player.x, player.y, 20, "#d92121");
+        game.obstacles.splice(i, 1);
+        game.lives--;
 
-            // Hide all views
-            document.querySelectorAll('.view-section').forEach(el => {
-                el.classList.remove('active');
-            });
-
-            // Handle special logic before showing
-            if (viewId === 'shop') {
-                if (param === 'sale') {
-                    // Quick hack for sale: just clear filters for this demo, usually would filter by 'sale: true'
-                    state.shopFilters.category = 'all';
-                } else if (param) {
-                    state.shopFilters.category = param; // If param is a category like Women, Men, etc.
-                }
-                updateShopView();
-                document.getElementById('view-shop').classList.add('active');
-                
-            } else if (viewId === 'product') {
-                loadProductDetail(param); // param is product ID
-                document.getElementById('view-product-detail').classList.add('active');
-                
-            } else if (viewId === 'cart') {
-                renderCartPage();
-                document.getElementById('view-cart').classList.add('active');
-                
-            } else if (viewId === 'auth') {
-                checkAuthState();
-                document.getElementById('view-auth').classList.add('active');
-                
-            } else if (viewId === 'checkout') {
-                if(state.cart.length === 0) {
-                    showToast("Cart is empty!");
-                    navigate('shop');
-                    return;
-                }
-                renderCheckoutPage();
-                document.getElementById('view-checkout').classList.add('active');
-                
-            } else {
-                // Default home
-                document.getElementById('view-home').classList.add('active');
-                viewId = 'home';
-            }
-
-            // Update URL Hash safely
-            history.pushState(null, null, `#${viewId}`);
-            state.currentView = viewId;
-
-            // Update Navigation active states
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('text-secondary', 'font-bold');
-                if (link.getAttribute('href') === `#${viewId}`) {
-                    // Optional styling for active nav
-                }
-            });
+        if (game.lives <= 0) {
+          game.isGameOver = true;
+        } else {
+          showNotification(`Ouch! Lives Left: ${game.lives}`);
         }
+      }
 
-        // ----------------------------------------
-        // 4. UI RENDERING (Home & Products)
-        // ----------------------------------------
+      // Clean off-screen
+      if (obs.x + obs.width < 0) game.obstacles.splice(i, 1);
+    }
 
-        // Helper to generate star ratings HTML
-        function getStarsHTML(rating, count = null) {
-            let html = '';
-            for (let i = 1; i <= 5; i++) {
-                if (i <= Math.floor(rating)) {
-                    html += '<i class="fas fa-star text-accent text-xs"></i>';
-                } else if (i === Math.ceil(rating) && !Number.isInteger(rating)) {
-                    html += '<i class="fas fa-star-half-alt text-accent text-xs"></i>';
-                } else {
-                    html += '<i class="far fa-star text-accent text-xs"></i>';
-                }
-            }
-            if(count) html += `<span class="text-xs text-gray-400 ml-1">(${count})</span>`;
-            else html += `<span class="text-xs text-gray-500 ml-1 font-medium">${rating}/5</span>`;
-            return html;
+    // Update Collectibles
+    for (let i = game.collectibles.length - 1; i >= 0; i--) {
+      let c = game.collectibles[i];
+      c.x -= game.gameSpeed;
+
+      if (
+        player.x < c.x + c.width &&
+        player.x + player.width > c.x &&
+        player.y < c.y + c.height &&
+        player.y + player.height > c.y
+      ) {
+        AudioEngine.playCoin();
+        if (c.type === "coin") {
+          game.score += 100;
+          showNotification("+100 Axum Coin!");
+        } else if (c.type === "buna") {
+          game.bunaBoost = 250; // Coffee Shield boost
+          showNotification("☕ Buna Boost Active! Shielded!");
+        } else if (c.type === "injera") {
+          if (game.lives < 4) game.lives++;
+          showNotification("🫓 Injera Restored Life!");
         }
+        createParticles(c.x, c.y, 10, "#ffde00");
+        game.collectibles.splice(i, 1);
+      }
 
-        // Helper to build a Product Card (Matches ref 1000087935.jpg & 1000087926.jpg)
-        function generateProductCard(product) {
-            const oldPrice = product.sale ? `<span class="line-through text-gray-400 text-sm ml-2">$${(product.price * 1.2).toFixed(2)}</span>` : '';
-            const saleBadge = product.sale ? `<div class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded">SALE</div>` : '';
-            
-            return `
-                <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-100 group relative flex flex-col transition hover:shadow-md">
-                    ${saleBadge}
-                    <div class="relative h-48 sm:h-56 mb-4 overflow-hidden rounded cursor-pointer flex-shrink-0" onclick="navigate('product', ${product.id})">
-                        <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover transition duration-500 group-hover:scale-105" onerror="this.src='https://via.placeholder.com/300?text=Image+Not+Found'">
-                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition"></div>
-                    </div>
-                    <div class="flex-grow flex flex-col justify-between text-center">
-                        <div>
-                            <h3 class="font-semibold text-gray-800 text-sm mb-1 cursor-pointer hover:text-secondary line-clamp-1" onclick="navigate('product', ${product.id})">${product.name}</h3>
-                            <div class="mb-2">
-                                ${getStarsHTML(product.rating, product.reviews)}
-                            </div>
-                            <div class="font-bold text-primary mb-4 text-lg">
-                                $${product.price.toFixed(2)} ${oldPrice}
-                            </div>
-                        </div>
-                        <button onclick="addToCart(${product.id})" class="w-full bg-primary hover:bg-black text-white font-semibold py-2 rounded text-sm transition">
-                            Add to Cart
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
+      if (c.x + c.width < 0) game.collectibles.splice(i, 1);
+    }
 
-        function renderTrendingProducts() {
-            const container = document.getElementById('trending-grid');
-            const trending = products.filter(p => p.trending).slice(0, 8); // Get up to 8 trending items
-            container.innerHTML = trending.map(p => generateProductCard(p)).join('');
-        }
+    // Update Particles
+    for (let i = game.particles.length - 1; i >= 0; i--) {
+      let p = game.particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life--;
+      if (p.life <= 0) game.particles.splice(i, 1);
+    }
+  }
 
-        // ----------------------------------------
-        // 5. SHOP & FILTER LOGIC
-        // ----------------------------------------
-        
-        function filterShop(category) {
-            state.shopFilters.category = category;
-            
-            // UI updates for sidebar
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                if(btn.dataset.cat === category) {
-                    btn.classList.add('text-secondary', 'font-bold');
-                } else {
-                    btn.classList.remove('text-secondary', 'font-bold');
-                }
-            });
-            
-            updateShopView();
-        }
+  function draw() {
+    const cfg = LEVEL_CONFIGS[game.level - 1];
 
-        function filterShopByParam(type, value) {
-            state.shopFilters[type] = value;
-            updateShopView();
-        }
+    // 1. Draw Environment Background Gradient
+    let grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, cfg.bgGradient[0]);
+    grad.addColorStop(1, cfg.bgGradient[1]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        function sortShop(value) {
-            state.shopFilters.sort = value;
-            updateShopView();
-        }
+    // Parallax Distant Sun / Cultural Sun Emblem
+    ctx.fillStyle = "rgba(255,255,255,0.15)";
+    ctx.beginPath();
+    ctx.arc(canvas.width - 100, 80, 50, 0, Math.PI * 2);
+    ctx.fill();
 
-        function executeSearch(query) {
-            document.getElementById('search-modal').classList.add('hidden'); // Close modal
-            document.getElementById('global-search-input').value = ''; // clear
-            
-            state.shopFilters.search = query.toLowerCase();
-            state.shopFilters.category = 'all'; // reset cat on search
-            
-            navigate('shop');
-        }
+    // 2. Draw Ground
+    ctx.fillStyle = cfg.groundColor;
+    ctx.fillRect(0, player.groundY + player.baseHeight, canvas.width, canvas.height - (player.groundY + player.baseHeight));
+    
+    // Top ground line
+    ctx.fillStyle = cfg.accentColor;
+    ctx.fillRect(0, player.groundY + player.baseHeight, canvas.width, 4);
 
-        function updateShopView() {
-            const grid = document.getElementById('shop-grid');
-            const emptyMsg = document.getElementById('shop-empty');
-            
-            // Update Title/Breadcrumb based on filter
-            let title = "All Products";
-            if(state.shopFilters.search) title = `Search: "${state.shopFilters.search}"`;
-            else if(state.shopFilters.category !== 'all') title = state.shopFilters.category;
-            
-            document.getElementById('shop-title').innerText = title;
-            document.getElementById('shop-breadcrumb').innerText = title;
+    // 3. Draw Player Character (Draws tailored style per level)
+    ctx.save();
+    if (game.bunaBoost > 0) {
+      // Buna Aura Shield
+      ctx.strokeStyle = "#ffde00";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(player.x + player.width / 2, player.y + player.height / 2, player.height * 0.7, 0, Math.PI * 2);
+      ctx.stroke();
+    }
 
-            // Apply Filters
-            let filtered = products.filter(p => {
-                let matchCat = state.shopFilters.category === 'all' || p.category === state.shopFilters.category;
-                // If it's a specific gender, allow "all" gender items to show too (like unisex bags)
-                let matchGen = state.shopFilters.gender === 'all' || p.gender === state.shopFilters.gender || p.gender === 'all';
-                let matchSearch = !state.shopFilters.search || p.name.toLowerCase().includes(state.shopFilters.search) || p.desc.toLowerCase().includes(state.shopFilters.search);
-                
-                // Hack for 'sale' category navigation
-                if(state.shopFilters.category === 'sale') { matchCat = p.sale === true; }
-                
-                return matchCat && matchGen && matchSearch;
-            });
+    // Body
+    ctx.fillStyle = cfg.heroColor;
+    ctx.fillRect(player.x, player.y, player.width, player.height);
 
-            // Apply Sort
-            if (state.shopFilters.sort === 'low') {
-                filtered.sort((a, b) => a.price - b.price);
-            } else if (state.shopFilters.sort === 'high') {
-                filtered.sort((a, b) => b.price - a.price);
-            }
+    // Head / Traditional Shawl accent
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(player.x + 4, player.y + 4, player.width - 8, 12);
 
-            // Render
-            document.getElementById('shop-result-count').innerText = `Showing ${filtered.length} results`;
+    // Eyes / Details
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(player.x + player.width - 10, player.y + 8, 4, 4);
+    ctx.restore();
 
-            if (filtered.length === 0) {
-                grid.innerHTML = '';
-                grid.classList.add('hidden');
-                emptyMsg.classList.remove('hidden');
-            } else {
-                emptyMsg.classList.add('hidden');
-                grid.classList.remove('hidden');
-                grid.innerHTML = filtered.map(p => generateProductCard(p)).join('');
-            }
-        }
+    // 4. Draw Obstacles
+    for (let obs of game.obstacles) {
+      if (obs.isFlying) {
+        ctx.fillStyle = "#c0392b";
+        ctx.beginPath();
+        ctx.ellipse(obs.x + obs.width / 2, obs.y + obs.height / 2, obs.width / 2, obs.height / 3, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Wings
+        ctx.fillRect(obs.x + 4, obs.y - 4, 8, 6);
+      } else {
+        ctx.fillStyle = "#2c3e50";
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        // Detail motif
+        ctx.fillStyle = cfg.accentColor;
+        ctx.fillRect(obs.x + 4, obs.y + 4, obs.width - 8, 4);
+      }
+    }
 
+    // 5. Draw Collectibles
+    for (let c of game.collectibles) {
+      ctx.font = "18px Arial";
+      if (c.type === "coin") ctx.fillText("🪙", c.x, c.y + 18);
+      else if (c.type === "buna") ctx.fillText("☕", c.x, c.y + 18);
+      else if (c.type === "injera") ctx.fillText("🫓", c.x, c.y + 18);
+    }
 
-        // ----------------------------------------
-        // 6. PRODUCT DETAIL LOGIC
-        // ----------------------------------------
-        function loadProductDetail(id) {
-            const product = products.find(p => p.id === parseInt(id));
-            if(!product) { navigate('shop'); return; }
-            
-            state.currentProductDetailId = product.id;
+    // 6. Draw Particles
+    for (let p of game.particles) {
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x, p.y, p.size, p.size);
+    }
 
-            // Populate DOM
-            document.getElementById('detail-img').src = product.image;
-            document.getElementById('detail-category').innerText = product.category;
-            document.getElementById('detail-title').innerText = product.name;
-            document.getElementById('detail-price').innerText = `$${product.price.toFixed(2)}`;
-            document.getElementById('detail-desc').innerText = product.desc;
-            document.getElementById('detail-rating').innerHTML = getStarsHTML(product.rating, product.reviews);
-            document.getElementById('detail-qty').value = 1;
+    // 7. Draw HUD (Heads-Up Display)
+    ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+    ctx.fillRect(10, 10, canvas.width - 20, 45);
 
-            if(product.sale) {
-                const old = document.getElementById('detail-old-price');
-                old.innerText = `$${(product.price * 1.2).toFixed(2)}`;
-                old.classList.remove('hidden');
-            } else {
-                document.getElementById('detail-old-price').classList.add('hidden');
-            }
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 15px Segoe UI, sans-serif";
+    ctx.fillText(`SCORE: ${game.score} / 10000`, 24, 36);
 
-            // Attach Add to cart event
-            const btn = document.getElementById('btn-add-detail');
-            btn.onclick = () => {
-                const qty = parseInt(document.getElementById('detail-qty').value);
-                addToCart(product.id, qty);
-            };
+    ctx.fillStyle = "#ffde00";
+    ctx.fillText(`LVL ${game.level}: ${cfg.name} (${cfg.hero})`, 220, 36);
 
-            // Load some related products (random 4 from same category)
-            const related = products.filter(p => p.category === product.category && p.id !== product.id).slice(0,4);
-            // If not enough related, pad with trending
-            if(related.length < 4) {
-                const extra = products.filter(p => p.trending && p.id !== product.id && !related.includes(p)).slice(0, 4 - related.length);
-                related.push(...extra);
-            }
-            document.getElementById('related-grid').innerHTML = related.map(p => generateProductCard(p)).join('');
-        }
+    // Lives
+    ctx.fillStyle = "#ffffff";
+    let hearts = "";
+    for (let l = 0; l < game.lives; l++) hearts += "❤️ ";
+    ctx.fillText(`LIVES: ${hearts}`, canvas.width - 180, 36);
 
-        function changeDetailQty(amount) {
-            const input = document.getElementById('detail-qty');
-            let val = parseInt(input.value) + amount;
-            if(val < 1) val = 1;
-            if(val > 10) val = 10;
-            input.value = val;
-        }
+    // Level 10 Speed Banner Alert
+    if (game.level === 10 && !game.isGameOver && !game.isGameWon) {
+      ctx.fillStyle = "rgba(217, 33, 33, 0.85)";
+      ctx.fillRect(0, 60, canvas.width, 28);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 14px Segoe UI";
+      ctx.textAlign = "center";
+      ctx.fillText("⚡ MAX SPEED! DANAKIL SPRINT TO 10,000 PTS! ⚡", canvas.width / 2, 79);
+      ctx.textAlign = "left";
+    }
 
-        // ----------------------------------------
-        // 7. CART LOGIC
-        // ----------------------------------------
-        
-        function addToCart(productId, qty = 1) {
-            const product = products.find(p => p.id === productId);
-            if(!product) return;
+    // Floating notifications
+    for (let i = game.notifications.length - 1; i >= 0; i--) {
+      let n = game.notifications[i];
+      ctx.fillStyle = `rgba(255, 222, 0, ${n.alpha})`;
+      ctx.font = "bold 16px Segoe UI";
+      ctx.fillText(n.text, 24, n.y);
+      n.y -= 0.5;
+      n.alpha -= 0.015;
+      if (n.alpha <= 0) game.notifications.splice(i, 1);
+    }
 
-            const existingItem = state.cart.find(item => item.id === productId);
-            if (existingItem) {
-                existingItem.qty += qty;
-            } else {
-                state.cart.push({ ...product, qty: qty });
-            }
+    // Game Over Overlay
+    if (game.isGameOver) {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            saveCart();
-            updateCartBadge();
-            showToast(`<i class="fas fa-check-circle text-green-400"></i> Added <b>${product.name}</b> to cart.`);
-        }
+      ctx.fillStyle = "#d92121";
+      ctx.font = "bold 36px Segoe UI";
+      ctx.textAlign = "center";
+      ctx.fillText("GAME OVER", canvas.width / 2, 120);
 
-        function updateCartQty(productId, amount) {
-            const item = state.cart.find(i => i.id === productId);
-            if(item) {
-                item.qty += amount;
-                if(item.qty < 1) item.qty = 1; // Minimum 1
-                saveCart();
-                renderCartPage(); // Re-render table
-                updateCartBadge();
-            }
-        }
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "18px Segoe UI";
+      ctx.fillText(`You reached Level ${game.level} (${cfg.name}) with ${game.score} points.`, canvas.width / 2, 165);
 
-        function removeFromCart(productId) {
-            state.cart = state.cart.filter(item => item.id !== productId);
-            saveCart();
-            renderCartPage();
-            updateCartBadge();
-            showToast(`<i class="fas fa-trash-alt text-red-400"></i> Item removed from cart.`);
-        }
+      ctx.fillStyle = "#ffde00";
+      ctx.font = "bold 18px Segoe UI";
+      ctx.fillText("Press SPACE or TAP JUMP to Try Again!", canvas.width / 2, 210);
+      ctx.textAlign = "left";
+    }
 
-        function saveCart() {
-            localStorage.setItem('lalibela_cart', JSON.stringify(state.cart));
-        }
+    // Victory Overlay (10,000 Points Reached)
+    if (game.isGameWon) {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.88)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        function updateCartBadge() {
-            const badge = document.getElementById('cart-badge');
-            const totalItems = state.cart.reduce((sum, item) => sum + item.qty, 0);
-            
-            if(totalItems > 0) {
-                badge.innerText = totalItems;
-                badge.classList.remove('opacity-0');
-            } else {
-                badge.classList.add('opacity-0');
-            }
-        }
+      ctx.fillStyle = "#009b48";
+      ctx.font = "bold 34px Segoe UI";
+      ctx.textAlign = "center";
+      ctx.fillText("🎉 CONGRATULATIONS! YOU WON! 🎉", canvas.width / 2, 100);
 
-        function calculateCartTotals() {
-            const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const shipping = subtotal > 100 || subtotal === 0 ? 0 : 15.00; // Free shipping over $100
-            const tax = subtotal * 0.15; // 15% VAT
-            const total = subtotal + shipping + tax;
-            
-            return { subtotal, shipping, tax, total };
-        }
+      ctx.fillStyle = "#ffde00";
+      ctx.font = "bold 20px Segoe UI";
+      ctx.fillText("🏆 Master of Ethiopian History & Culture 🏆", canvas.width / 2, 145);
 
-        function renderCartPage() {
-            const tbody = document.getElementById('cart-table-body');
-            const emptyMsg = document.getElementById('cart-empty-msg');
-            const tableParent = tbody.parentElement.parentElement;
-            
-            if(state.cart.length === 0) {
-                tableParent.classList.add('hidden');
-                emptyMsg.classList.remove('hidden');
-                document.getElementById('btn-checkout').disabled = true;
-                document.getElementById('btn-checkout').classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                tableParent.classList.remove('hidden');
-                emptyMsg.classList.add('hidden');
-                document.getElementById('btn-checkout').disabled = false;
-                document.getElementById('btn-checkout').classList.remove('opacity-50', 'cursor-not-allowed');
-                
-                tbody.innerHTML = state.cart.map(item => `
-                    <tr class="border-b last:border-b-0">
-                        <td class="p-4">
-                            <div class="flex items-center gap-4">
-                                <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded shadow-sm cursor-pointer" onclick="navigate('product', ${item.id})">
-                                <div>
-                                    <h4 class="font-bold text-sm cursor-pointer hover:text-secondary line-clamp-1" onclick="navigate('product', ${item.id})">${item.name}</h4>
-                                    <span class="text-xs text-gray-500">${item.category}</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="p-4 text-center">
-                            <div class="inline-flex items-center border rounded bg-white">
-                                <button onclick="updateCartQty(${item.id}, -1)" class="px-2 py-1 text-gray-600 hover:bg-gray-100">-</button>
-                                <span class="w-8 text-center text-sm">${item.qty}</span>
-                                <button onclick="updateCartQty(${item.id}, 1)" class="px-2 py-1 text-gray-600 hover:bg-gray-100">+</button>
-                            </div>
-                        </td>
-                        <td class="p-4 text-right font-bold text-primary">
-                            $${(item.price * item.qty).toFixed(2)}
-                        </td>
-                        <td class="p-4 text-center">
-                            <button onclick="removeFromCart(${item.id})" class="text-gray-400 hover:text-red-500 transition">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "16px Segoe UI";
+      ctx.fillText("You completed all 10 levels and scored 10,000 Points!", canvas.width / 2, 185);
 
-            // Update Summary
-            const totals = calculateCartTotals();
-            document.getElementById('cart-subtotal').innerText = `$${totals.subtotal.toFixed(2)}`;
-            document.getElementById('cart-shipping').innerText = totals.shipping === 0 ? 'Free' : `$${totals.shipping.toFixed(2)}`;
-            document.getElementById('cart-tax').innerText = `$${totals.tax.toFixed(2)}`;
-            document.getElementById('cart-total').innerText = `$${totals.total.toFixed(2)}`;
-        }
+      ctx.fillStyle = "#009b48";
+      ctx.fillText("Press SPACE or TAP JUMP to play again!", canvas.width / 2, 230);
+      ctx.textAlign = "left";
+    }
+  }
 
+  function resetGame() {
+    game.score = 0;
+    game.level = 1;
+    game.gameSpeed = 6;
+    game.isGameOver = false;
+    game.isGameWon = false;
+    game.lives = 3;
+    game.bunaBoost = 0;
+    game.obstacles = [];
+    game.collectibles = [];
+    game.particles = [];
+    document.getElementById("levelSelect").value = "1";
+    player.y = player.groundY;
+  }
 
-        // ----------------------------------------
-        // 8. CHECKOUT LOGIC
-        // ----------------------------------------
-        function proceedToCheckout() {
-            if(!state.currentUser) {
-                showToast("Please login or register to checkout.");
-                navigate('auth');
-                return;
-            }
-            navigate('checkout');
-        }
+  function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+  }
 
-        function renderCheckoutPage() {
-            const container = document.getElementById('checkout-items');
-            container.innerHTML = state.cart.map(item => `
-                <div class="flex justify-between items-center py-2 border-b border-gray-700 last:border-0">
-                    <div class="flex gap-3 items-center w-3/4">
-                        <img src="${item.image}" class="w-10 h-10 object-cover rounded">
-                        <span class="truncate">${item.name} <span class="text-gray-400">x${item.qty}</span></span>
-                    </div>
-                    <span class="font-bold">$${(item.price * item.qty).toFixed(2)}</span>
-                </div>
-            `).join('');
-
-            const totals = calculateCartTotals();
-            document.getElementById('check-subtotal').innerText = `$${totals.subtotal.toFixed(2)}`;
-            document.getElementById('check-shipping').innerText = totals.shipping === 0 ? 'Free' : `$${totals.shipping.toFixed(2)}`;
-            document.getElementById('check-tax').innerText = `$${totals.tax.toFixed(2)}`;
-            document.getElementById('check-total').innerText = `$${totals.total.toFixed(2)}`;
-        }
-
-        function handleCheckout(e) {
-            e.preventDefault();
-            // Simulate processing
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<span class="loader"></span> Processing...';
-            btn.disabled = true;
-
-            setTimeout(() => {
-                // Success
-                state.cart = []; // clear cart
-                saveCart();
-                updateCartBadge();
-                
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                
-                alert("Order Placed Successfully! Thank you for shopping with Lalibela Shop.");
-                navigate('home');
-            }, 2000);
-        }
-
-        // ----------------------------------------
-        // 9. AUTH LOGIC (Login / Register)
-        // ----------------------------------------
-        function checkAuthState() {
-            const loggedInDiv = document.getElementById('auth-logged-in');
-            const formsDiv = document.getElementById('form-login').parentElement.parentElement; // The container holding forms
-            const greeting = document.getElementById('user-greeting');
-            
-            if(state.currentUser) {
-                formsDiv.classList.add('hidden');
-                loggedInDiv.classList.remove('hidden');
-                document.getElementById('account-email').innerText = state.currentUser.email;
-                greeting.innerText = 'Hi, ' + state.currentUser.name.split(' ')[0];
-                greeting.classList.remove('hidden');
-            } else {
-                formsDiv.classList.remove('hidden');
-                loggedInDiv.classList.add('hidden');
-                greeting.classList.add('hidden');
-                toggleAuth('login');
-            }
-        }
-
-        function toggleAuth(type) {
-            const loginForm = document.getElementById('form-login');
-            const regForm = document.getElementById('form-register');
-            const tabLogin = document.getElementById('tab-login');
-            const tabReg = document.getElementById('tab-register');
-
-            if(type === 'login') {
-                loginForm.classList.remove('hidden');
-                regForm.classList.add('hidden');
-                tabLogin.className = "w-1/2 py-4 font-bold text-center bg-gray-50 border-b-2 border-secondary text-primary";
-                tabReg.className = "w-1/2 py-4 font-bold text-center bg-gray-100 border-b-2 border-transparent text-gray-500 hover:text-primary";
-            } else {
-                loginForm.classList.add('hidden');
-                regForm.classList.remove('hidden');
-                tabReg.className = "w-1/2 py-4 font-bold text-center bg-gray-50 border-b-2 border-secondary text-primary";
-                tabLogin.className = "w-1/2 py-4 font-bold text-center bg-gray-100 border-b-2 border-transparent text-gray-500 hover:text-primary";
-            }
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const inputs = e.target.querySelectorAll('input');
-            state.currentUser = { email: inputs[0].value, name: "Valued Customer" };
-            showToast("Successfully logged in!");
-            
-            // If they came from cart checkout intent, redirect back
-            if(state.cart.length > 0) {
-                navigate('checkout');
-            } else {
-                checkAuthState();
-            }
-        }
-
-        function handleRegister(e) {
-            e.preventDefault();
-            const inputs = e.target.querySelectorAll('input');
-            state.currentUser = { name: inputs[0].value, email: inputs[1].value };
-            showToast("Account created successfully!");
-            checkAuthState();
-        }
-
-        function handleLogout() {
-            state.currentUser = null;
-            showToast("Logged out.");
-            checkAuthState();
-        }
-
-        // ----------------------------------------
-        // 10. UTILS (Toast & Mobile Menu)
-        // ----------------------------------------
-        function showToast(message) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = message;
-            container.appendChild(toast);
-            
-            // Trigger animation
-            setTimeout(() => toast.classList.add('show'), 10);
-            
-            // Remove after 3 seconds
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        function handleNewsletter(e) {
-            e.preventDefault();
-            const input = e.target.querySelector('input');
-            showToast(`<i class="fas fa-envelope text-secondary"></i> Subscribed with ${input.value}`);
-            input.value = '';
-        }
-
-        // Mobile Menu interactions
-        const btnMobileMenu = document.getElementById('btn-mobile-menu');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const overlay = document.getElementById('mobile-overlay');
-        const btnCloseMenu = document.getElementById('btn-close-menu');
-
-        btnMobileMenu.onclick = () => {
-            mobileMenu.classList.add('open');
-            overlay.classList.remove('hidden');
-        }
-        
-        function closeMobileMenu() {
-            mobileMenu.classList.remove('open');
-            overlay.classList.add('hidden');
-        }
-        btnCloseMenu.onclick = closeMobileMenu;
-
-        // Initialize App on load
-        document.addEventListener('DOMContentLoaded', initApp);
-
-    </script>
+  // Launch game
+  gameLoop();
+</script>
 </body>
 </html>
-
-```
